@@ -141,6 +141,8 @@ export default defineComponent({
       default: 'green',
       type: String,
     },
+    format: String,
+    language: String,
   },
   emits: ['show-year-calendar', 'changed-month', 'show-month-calendar', 'selected-disabled', 'select-date'],
   setup(props, { emit }) {
@@ -233,7 +235,7 @@ export default defineComponent({
      * @return {Boolean}
      */
     function isSelectedDate(dObj: Date): boolean {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? compareDates(propDate, dObj) : false;
     }
 
@@ -513,12 +515,12 @@ export default defineComponent({
     });
 
     const getDayName = computed(() => {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getDayNameAbbr(propDate, props.translation && props.translation.daysNames) : null;
     });
 
     const getDisplayDate = computed(() => {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getDate(propDate) : null;
     });
 

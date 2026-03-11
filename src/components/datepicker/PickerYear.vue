@@ -103,6 +103,8 @@ export default defineComponent({
       default: 'green',
       type: String,
     },
+    format: String,
+    language: String,
   },
   emits: ['select-year', 'changed-decade'],
   setup(props, { emit }) {
@@ -178,7 +180,7 @@ export default defineComponent({
      * @return {Boolean}
      */
     function isSelectedYear(date: Date): boolean {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getFullYear(propDate) === getFullYear(date) : false;
     }
 
@@ -258,7 +260,7 @@ export default defineComponent({
     });
 
     const getDayName = computed(() => {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getDayNameAbbr(propDate, props.translation && props.translation.daysNames) : null;
     });
 
@@ -272,7 +274,7 @@ export default defineComponent({
     });
 
     const getDisplayDate = computed(() => {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getDate(propDate) : null;
     });
 

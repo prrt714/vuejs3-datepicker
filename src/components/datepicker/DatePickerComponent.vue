@@ -10,6 +10,7 @@
       :selectedDate="selectedDate"
       :resetTypedDate="resetTypedDate"
       :format="format"
+      :language="language"
       :translation="translation"
       :inline="inline"
       :id="id"
@@ -70,6 +71,8 @@
       :maximumView="maximumView"
       :preventDisableDateSelection="preventDisableDateSelection"
       :theme="theme"
+      :format="format"
+      :language="language"
     >
       <template v-slot:customCalendarHeader>
         <slot name="customCalendarHeader"></slot>
@@ -99,6 +102,8 @@
       :minimumView="minimumView"
       :maximumView="maximumView"
       :theme="theme"
+      :format="format"
+      :language="language"
     >
       <template v-slot:customCalendarHeader>
         <slot name="customCalendarHeader"></slot>
@@ -127,6 +132,8 @@
       :minimumView="minimumView"
       :maximumView="maximumView"
       :theme="theme"
+      :format="format"
+      :language="language"
     >
       <template v-slot:customCalendarHeader>
         <slot name="customCalendarHeader"></slot>
@@ -140,13 +147,14 @@
 
 <script lang="ts">
 import { defineComponent, computed, watch, ref } from 'vue';
+import moment from 'moment';
 import clickOutside from '../../directives/click-outside';
 import DateInput from './DateInput.vue';
 import PickerDay from './PickerDay.vue';
 import PickerMonth from './PickerMonth.vue';
 import PickerYear from './PickerYear.vue';
 import * as Langlist from './locale/index';
-import { isValidDate, setDate, validateDateInput } from './utils/DateUtils';
+import { isValidDate, setDate, validateDateInput, stringToDate } from './utils/DateUtils';
 
 export default defineComponent({
   name: 'Datepicker',
@@ -167,8 +175,8 @@ export default defineComponent({
       type: [Date as new () => Date, String, Number],
     },
     format: {
-      type: [String, Function],
-      default: 'dd MMM yyyy',
+      type: String,
+      default: 'DD MMM YYYY',
     },
     language: {
       type: String,
@@ -301,7 +309,7 @@ export default defineComponent({
       selectedDate.value = initmodelvalue;
     }
     if (props.openDate) {
-      pageTimestamp.value = setDate(new Date(props.openDate), 1);
+      pageTimestamp.value = setDate(stringToDate(props.openDate, props.format, props.language), 1);
     }
     const showDayView = ref(false);
     const showMonthView = ref(false);
@@ -351,12 +359,15 @@ export default defineComponent({
     function setPageDate(date?: string | number | Date | undefined): void {
       if (!date) {
         if (props.openDate) {
-          date = new Date(props.openDate);
+          date = stringToDate(props.openDate, props.format, props.language);
         } else {
           date = new Date();
         }
+      } else if (typeof date === 'string') {
+        pageTimestamp.value = setDate(stringToDate(date, props.format, props.language), 1);
+      } else {
+        pageTimestamp.value = setDate(new Date(date), 1);
       }
-      pageTimestamp.value = setDate(new Date(date), 1);
     }
 
     /**
@@ -539,7 +550,10 @@ export default defineComponent({
      */
     function setValue(date?: Date | string | number): void {
       let tempDate = date;
-      if (typeof date === 'string' || typeof date === 'number') {
+      if (typeof date === 'string') {
+        const m = moment(date, props.format, props.language);
+        tempDate = m.isValid() ? m.toDate() : '';
+      } else if (typeof date === 'number') {
         const parsed = new Date(date);
         tempDate = Number.isNaN(parsed.valueOf()) ? '' : parsed;
       }

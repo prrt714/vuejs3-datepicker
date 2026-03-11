@@ -70,6 +70,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'vue';
+import moment from 'moment';
 import IconView from '../iconview/IconView.vue';
 import { formatDate, stringToDate } from './utils/DateUtils.ts';
 
@@ -88,7 +89,7 @@ export default defineComponent({
       default: new Date(),
     },
     format: {
-      type: [String, Function],
+      type: String,
     },
     translation: {
       type: Object,
@@ -175,6 +176,7 @@ export default defineComponent({
       default: 'green',
       type: String,
     },
+    language: String,
   },
   emits: ['show-calendar', 'typed-date', 'clear-date', 'close-calendar'],
   setup(props, { emit }) {
@@ -202,12 +204,9 @@ export default defineComponent({
         return typedDate.value;
       }
 
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
 
-      let date =
-        typeof props.format === 'function'
-          ? props.format(propDate)
-          : formatDate(propDate, props.format as any, props.translation as any);
+      let date = formatDate(propDate, props.format as string, props.language as string);
 
       if (props.minimumView === props.maximumView) {
         const [, y, z] = date.split(' ');
@@ -255,10 +254,10 @@ export default defineComponent({
       }
       if (props.typeable) {
         const { value } = inputRef.value as any;
-        const temptypedDate = Date.parse(value);
-        if (!Number.isNaN(temptypedDate)) {
+        const temptypedDate = moment(value, props.format as string);
+        if (temptypedDate.isValid()) {
           typedDate.value = value;
-          emit('typed-date', new Date(temptypedDate));
+          emit('typed-date', temptypedDate.toDate());
         }
       }
     }
@@ -275,7 +274,7 @@ export default defineComponent({
      * called once the input is blurred
      */
     function inputBlurred(): void {
-      if (props.typeable && Number.isNaN(Date.parse((inputRef.value as any).value))) {
+      if (props.typeable && !moment((inputRef.value as any).value, props.format as string).isValid()) {
         clearDate();
         (inputRef.value as any).value = null;
         typedDate.value = '';

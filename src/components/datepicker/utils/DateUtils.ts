@@ -1,4 +1,5 @@
 /* eslint-disable */
+import moment from "moment";
 
 /**
  * Returns the full year, using UTC or not
@@ -213,45 +214,14 @@ export const getNthSuffix = (day: any): string => {
  * Formats date object
  * @param {Date}
  * @param {String}
- * @param {Object}
  * @return {String}
  */
 export const formatDate = (
   date: Date,
-  format: {
-    replace: (
-      arg0: RegExp,
-      arg1: string
-    ) => {
-      (): any;
-      new (): any;
-      replace: {
-        (arg0: RegExp, arg1: any): {
-          (): any;
-          new (): any;
-          replace: { (arg0: RegExp, arg1: number): string; new (): any };
-        };
-        new (): any;
-      };
-    };
-  },
-  translation: { months: any; monthsAbbr: any; days: any }
+  format: string,
+  language: string
 ): string => {
-  const year = getFullYear(date);
-  const month = getMonth(date) + 1;
-  const day = getDate(date);
-  const str = format
-    .replace(/dd/, `0${day}`.slice(-2))
-    .replace(/d/, day)
-    .replace(/yyyy/, year)
-    .replace(/yy/, String(year).slice(2))
-    .replace(/MMMM/, getMonthName(getMonth(date), translation.months) as any)
-    .replace(/MMM/, getMonthNameAbbr(getMonth(date), translation.monthsAbbr) as any)
-    .replace(/MM/, `0${month}`.slice(-2))
-    .replace(/M(?!a|ä|e)/, month.toString())
-    .replace(/su/, getNthSuffix(getDate(date)))
-    .replace(/D(?!e|é|i)/, getDayNameAbbr(date, translation.days) as any);
-  return str;
+  return moment(date).locale(language).format(format);
 };
 
 /**
@@ -278,9 +248,9 @@ export const validateDateInput = (val: any): boolean => {
   return val === null || val instanceof Date || typeof val === 'string' || typeof val === 'number';
 };
 
-export const stringToDate = (value: string | Date): Date => {
+export const stringToDate = (value: string | Date, format: string, language: string): Date => {
   if (typeof value === 'string') {
-    return new Date(value);
+    return moment(value, format, language).toDate();
   }
   return value;
 };

@@ -110,6 +110,8 @@ export default defineComponent({
       default: 'green',
       type: String,
     },
+    format: String,
+    language: String,
   },
   setup(props, { emit }) {
     /** ********************************** Methods  *********************************** */
@@ -188,7 +190,7 @@ export default defineComponent({
      * @return {Boolean}
      */
     function isSelectedMonth(date: Date): boolean {
-      const d = stringToDate(props.selectedDate);
+      const d = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return d && getFullYear(d) === getFullYear(date) && getMonth(d) === getMonth(date);
     }
 
@@ -283,12 +285,12 @@ export default defineComponent({
     });
 
     const getDisplayDate = computed(() => {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getDate(propDate) : null;
     });
 
     const getDayName = computed(() => {
-      const propDate = stringToDate(props.selectedDate);
+      const propDate = stringToDate(props.selectedDate, props.format as string, props.language as string);
       return props.selectedDate ? getDayNameAbbr(propDate, props.translation && props.translation.daysNames) : null;
     });
 
